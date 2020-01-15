@@ -17,19 +17,15 @@ LEFT = 'left'
 RIGHT = 'right'
 
 HEAD = 0
-cell = [0, 0]
+cell = size[0] // 29 #РєРѕР»-РІРѕ РєР»РµС‚РѕС‡РµРє
 
 cameraX = 0
 cameraY = 0
-
-appl = 0
-
 
 def load_image(name):
     fullname = os.path.join(name)
     image = pygame.image.load(fullname).convert_alpha()
     return image
-
 
 def draw_image(name, pos):
     surf = load_image(name)
@@ -41,12 +37,14 @@ def terminate():
     sys.exit()
 
 
+
 def runGame():
-    global headpos, appl, lev, fonn, cameraX, cameraY
-    screen.blit(fonn, (cameraX, cameraY))
+    global headpos
+    screen.fill((0, 100, 0))
+    all_sprites.draw(screen)
     # Set a random start point.
-    startx = random.randint(5, cell[0] - 6)
-    starty = random.randint(5, cell[1] - 6)
+    startx = random.randint(5, cell - 6)
+    starty = random.randint(5, cell - 6)
     snake = [{'x': startx, 'y': starty}, {'x': startx - 1, 'y': starty}, {'x': startx - 2, 'y': starty}]
     direction = RIGHT
 
@@ -70,8 +68,7 @@ def runGame():
                     terminate()
 
         # check if the worm has hit itself or the edge
-        if snake[HEAD]['x'] == -1 or snake[HEAD]['x'] == cell[0] \
-                or snake[HEAD]['y'] == -1 or snake[HEAD]['y'] == cell[1]:
+        if snake[HEAD]['x'] == -1 or snake[HEAD]['x'] == cell or snake[HEAD]['y'] == -1 or snake[HEAD]['y'] == cell:
             gameover()  # game over
         for wormBody in snake[1:]:
             if wormBody['x'] == snake[HEAD]['x'] and wormBody['y'] == snake[HEAD]['y']:
@@ -80,8 +77,7 @@ def runGame():
         # check if worm has eaten an apply
         if snake[HEAD]['x'] == apple['x'] and snake[HEAD]['y'] == apple['y']:
             # don't remove worm's tail segment
-            apple = getRandomLocation()
-            appl += 1  # set a new apple somewhere
+            apple = getRandomLocation()  # set a new apple somewhere
         else:
             del snake[-1]  # remove worm's tail segment
 
@@ -97,6 +93,7 @@ def runGame():
         snake.insert(0, newHead)
         headpos = newHead
 
+        global cameraX, cameraY
         cameraX = -(headpos['x'] - 8.5) * tile_width
         cameraY = -(headpos['y'] - 8.5) * tile_height
 
@@ -107,11 +104,11 @@ def runGame():
 
 
 def getRandomLocation():
-    return {'x': random.randint(0, cell[0] - 1), 'y': random.randint(0, cell[1] - 1)}
+    return {'x': random.randint(0, cell - 1), 'y': random.randint(0, cell - 1)}
 
 
 def start_screen():
-    intro_text = [" Змейка "]
+    intro_text = [" Р—РјРµР№РєР° "]
 
     fon = pygame.transform.scale(load_image('snake.jpg'), (size[0], size[1]))
 
@@ -132,7 +129,7 @@ def start_screen():
             if event.type == pygame.QUIT:
                 terminate()
             elif event.type == pygame.KEYDOWN or event.type == pygame.MOUSEBUTTONDOWN:
-                return
+                return  # РЅР°С‡РёРЅР°РµРј РёРіСЂСѓ
         pygame.display.flip()
         clock.tick(FPS)
 
@@ -155,18 +152,18 @@ def gameover():
             if event.type == pygame.QUIT:
                 terminate()
             elif event.type == pygame.KEYDOWN or event.type == pygame.MOUSEBUTTONDOWN:
-                runGame()
+                runGame()  # РЅР°С‡РёРЅР°РµРј РёРіСЂСѓ
         pygame.display.flip()
         clock.tick(FPS)
 
 
 def load_level(filename):
-    global cell
     with open(filename, 'r') as mapFile:
         level_map = [line.strip() for line in mapFile]
+    # Рё РїРѕРґСЃС‡РёС‚С‹РІР°РµРј РјР°РєСЃРёРјР°Р»СЊРЅСѓСЋ РґР»РёРЅСѓ
     max_width = max(map(len, level_map))
-    cell[0] = max_width
-    cell[1] = len(level_map) - 1
+    #cell = max_width РµСЃР»Рё РїРѕР»Рµ Р±РѕР»СЊС€Рµ СЌРєСЂР°РЅР°
+    # РґРѕРїРѕР»РЅСЏРµРј РєР°Р¶РґСѓСЋ СЃС‚СЂРѕРєСѓ РїСѓСЃС‚С‹РјРё РєР»РµС‚РєР°РјРё ('.')
     return list(map(lambda x: x.ljust(max_width, '.'), level_map))
 
 
@@ -184,7 +181,6 @@ class Tile(pygame.sprite.Sprite):
         self.image = tile_images[tile_type]
         self.rect = self.image.get_rect().move(tile_width * pos_x, tile_height * pos_y)
 
-
 def generate_level(level):
     x, y = None, None
     for y in range(len(level)):
@@ -194,9 +190,6 @@ def generate_level(level):
             elif level[y][x] == '#':
                 Tile('wall', x, y)
     return x, y
-
-fonn = pygame.Surface([cell[0] * tile_width, cell[1] * tile_height])
-all_sprites.draw(fonn)
 
 
 def drawSnake(snake, direction):
@@ -226,13 +219,12 @@ def drawApple(apple):
     draw_image("apple.png", (x, y))
 
 
-lev = 'map1.txt'
-if appl == 10:
-    lev = 'map2.txt'
-level = load_level(lev)
-level_x, level_y = generate_level(load_level(lev))
+
+level = load_level('map1.txt')
+level_x, level_y = generate_level(load_level('map1.txt'))
 
 start_screen()
-screen.blit(fonn, (cameraX, cameraY))
+screen.fill((0, 100, 0))
+all_sprites.draw(screen)
 while True:
     runGame()
