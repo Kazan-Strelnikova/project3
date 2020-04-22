@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Тесты</h1>
+{% if current_user.is_authenticated and current_user.occupation == 'да'%}
+        <a href="test" class="btn btn-secondary">Добавить тест</a>
+    {% endif %}
+{% for item in test%}
+<div class="col-md6 border rounded">
+    <h1>Тест №{{item.id}}</h1>
+
+    <h2>{{item.title}}</h2>
+
+    <div>
+        Автор - {{item.user.name}}, Предмет - {{item.subject}}
+    </div>
+</div>
+{% endfor %}
+{% endblock %}
