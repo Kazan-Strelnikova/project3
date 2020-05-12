@@ -11,7 +11,7 @@ class User(SqlAlchemyBase, UserMixin):
     email = sqlalchemy.Column(sqlalchemy.String, index=True, unique=True, nullable=True)
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, autoincrement=True)
     name = sqlalchemy.Column(sqlalchemy.String, nullable=True)
-    clas = sqlalchemy.Column(sqlalchemy.Integer, nullable=True)
+    clas = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     occupation = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     hashed_password = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     tests = orm.relation("Tests", back_populates='user')
